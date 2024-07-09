@@ -1,43 +1,29 @@
 import { useEffect, useState } from "react";
 import styles from "./App.module.css";
+import { LIGHT_CONFIG } from "./commom/lightConfig";
+import { LightColor } from "./commom/common.type";
 
 function App() {
-  const [isGreenOn, setIsGreenOn] = useState(false);
-  const [isYellowOn, setIsYellowOn] = useState(false);
-  const [isRedOn, setIsRedOn] = useState(false);
+  const [currentLight, setCurrentLight] = useState<LightColor>("green");
 
   useEffect(() => {
-    turnGreenOn();
-  }, []);
+    const { duration, next } = LIGHT_CONFIG[currentLight];
+    const timerId = setTimeout(() => {
+      setCurrentLight(next);
+    }, duration);
 
-  function turnGreenOn() {
-    setIsGreenOn(true);
-    setTimeout(() => {
-      setIsGreenOn(false);
-      turnYellowOn();
-    }, 3000);
-  }
+    return () => clearTimeout(timerId);
+  }, [currentLight]);
 
-  function turnYellowOn() {
-    setIsYellowOn(true);
-    setTimeout(() => {
-      setIsYellowOn(false);
-      turnRedOn();
-    }, 500);
-  }
-
-  function turnRedOn() {
-    setIsRedOn(true);
-    setTimeout(() => {
-      setIsRedOn(false);
-      turnGreenOn();
-    }, 4000);
-  }
   return (
     <div className={styles.lightBox}>
-      <div className={isGreenOn ? `${styles.light} ${styles.green}` : styles.light}></div>
-      <div className={isYellowOn ? `${styles.light} ${styles.yellow}` : styles.light}></div>
-      <div className={isRedOn ? `${styles.light} ${styles.red}` : styles.light}></div>
+      {Object.keys(LIGHT_CONFIG).map((key) => (
+        <div
+          key={key}
+          className={styles.light}
+          style={{ backgroundColor: key === currentLight ? key : undefined }}
+        ></div>
+      ))}
     </div>
   );
 }
